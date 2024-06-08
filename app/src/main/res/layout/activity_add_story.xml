@@ -14,47 +14,48 @@
         android:indeterminate="true"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="@+id/ImageAdd"
-        app:layout_constraintEnd_toEndOf="@+id/ImageAdd"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/ImageAdd" />
 
     <ImageView
         android:id="@+id/ImageAdd"
-        android:layout_width="411dp"
-        android:layout_height="302dp"
-        android:layout_marginTop="16dp"
+        android:layout_width="414dp"
+        android:layout_height="351dp"
+        app:layout_constraintDimensionRatio="1.37"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:srcCompat="@drawable/ic_place_holder" />
 
     <Button
         android:id="@+id/ButtonGallery"
-        android:layout_width="156dp"
-        android:layout_height="46dp"
-        android:layout_marginStart="28dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
         android:text="@string/gallery"
+        app:layout_constraintEnd_toStartOf="@+id/ButtonCamera"
+        app:layout_constraintHorizontal_chainStyle="spread"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/ImageAdd" />
 
     <Button
         android:id="@+id/ButtonCamera"
-        android:layout_width="156dp"
-        android:layout_height="46dp"
-        android:layout_marginStart="64dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="24dp"
+        android:layout_marginEnd="16dp"
         android:text="Camera"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.529"
         app:layout_constraintStart_toEndOf="@+id/ButtonGallery"
         app:layout_constraintTop_toBottomOf="@+id/ImageAdd" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
         android:layout_marginTop="10dp"
@@ -62,27 +63,25 @@
         app:layout_constraintBottom_toTopOf="@+id/ButtonUpload"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ButtonGallery">
+        app:layout_constraintTop_toBottomOf="@+id/ButtonCamera">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etDesc"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:hint="desc"
-            android:gravity="top" />
+            android:layout_height="201dp"
+            android:gravity="top"
+            android:hint="desc" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button
         android:id="@+id/ButtonUpload"
-        android:layout_width="408dp"
-        android:layout_height="50dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:text="@string/upload"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>
