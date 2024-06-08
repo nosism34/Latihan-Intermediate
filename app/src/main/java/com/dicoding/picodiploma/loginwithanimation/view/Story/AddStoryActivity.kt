@@ -64,6 +64,8 @@ class AddStoryActivity : AppCompatActivity() {
         if (!allPermissionsGranted()) {
             requestPermissionLauncher.launch(REQUIRED_PERMISSION)
         }
+        token = intent.getStringExtra("token").toString()
+        Log.d("token dari mainactivity",token)
         binding.ButtonGallery.setOnClickListener{startGallery()}
         binding.ButtonCamera.setOnClickListener{startCamera()}
         binding.ButtonUpload.setOnClickListener { uploadImage() }
@@ -135,6 +137,7 @@ class AddStoryActivity : AppCompatActivity() {
                     val errorResponse = Gson().fromJson(errorBody, FileUploadResponse::class.java)
                     showToast(errorResponse.message)
                     showLoading(false)
+
 
                 }
             }
