@@ -110,10 +110,9 @@ class AddStoryActivity : AppCompatActivity() {
         currentImageUri?.let { uri ->
             val imageFile = uriToFile(uri, this).reduceFileImage()
             Log.d("Image File", "showImage: ${imageFile.path}")
-            val description = desc
             showLoading(true)
 
-            val requestBody = description.toRequestBody("text/plain".toMediaType())
+            val requestBody = desc.toRequestBody("text/plain".toMediaType())
             val requestImageFile = imageFile.asRequestBody("image/jpeg".toMediaType())
             val multipartBody = MultipartBody.Part.createFormData(
                 "photo",
@@ -123,8 +122,8 @@ class AddStoryActivity : AppCompatActivity() {
 
             lifecycleScope.launch {
                 try {
-                    val apiService = ApiConfig.getApiService(token)
-                    val successResponse = apiService.uploadImage(multipartBody, requestBody)
+                    val apiService = ApiConfig.getApiService()
+                    val successResponse = apiService.uploadImage("Bearer $token",multipartBody, requestBody)
                     showToast(successResponse.message)
                     showLoading(false)
 

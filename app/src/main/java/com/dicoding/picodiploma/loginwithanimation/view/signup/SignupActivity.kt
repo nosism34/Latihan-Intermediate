@@ -43,7 +43,6 @@ class SignupActivity : AppCompatActivity() {
         binding = ActivitySignupBinding.inflate(layoutInflater)
         setContentView(binding.root)
         mContext = this
-        mApiService = getApiService("")
 
 
 
@@ -139,7 +138,7 @@ class SignupActivity : AppCompatActivity() {
             try {
                 val intent = Intent(this@SignupActivity, LoginActivity::class.java)
                 intent.putExtra("email", email)
-                val apiService = getApiService("")
+                val apiService = getApiService()
                 apiService.register(name, email, password)
                 showToast("User Account Created")
                 showLoading(false)

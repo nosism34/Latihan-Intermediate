@@ -1,12 +1,21 @@
 package com.dicoding.picodiploma.loginwithanimation.data
 
+import androidx.lifecycle.LiveData
+import androidx.paging.ExperimentalPagingApi
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.liveData
 import com.dicoding.picodiploma.loginwithanimation.data.Api.ApiService
 import com.dicoding.picodiploma.loginwithanimation.data.pref.UserModel
 import com.dicoding.picodiploma.loginwithanimation.data.pref.UserPreference
+import com.dicoding.picodiploma.loginwithanimation.database.StoryDatabase
 import kotlinx.coroutines.flow.Flow
 
 class UserRepository private constructor(
-    private val userPreference: UserPreference
+    private val userPreference: UserPreference,
+    private val storyDatabase: StoryDatabase,
+    private val storyApi: ApiService,
 ) {
 
     suspend fun saveSession(user: UserModel) {
@@ -20,16 +29,32 @@ class UserRepository private constructor(
     suspend fun logout() {
         userPreference.logout()
     }
+    fun getStory(): LiveData<PagingData<ListStoryItem>> {
+        @OptIn(ExperimentalPagingApi::class)
+        return Pager(
+            config = PagingConfig(
+                pageSize = 5
+            ),
+            pagingSourceFactory = {
+//                QuotePagingSource(apiService)
+                storyDatabase.storyDao().getAllQuote()
+            }
+        ).liveData
+    }
+
+
+
 
     companion object {
         @Volatile
         private var instance: UserRepository? = null
         fun getInstance(
             apiService: ApiService,
-            userPreference: UserPreference
+            userPreference: UserPreference,
+            storyDatabase: StoryDatabase
         ): UserRepository =
             instance ?: synchronized(this) {
-                instance ?: UserRepository(userPreference)
+                instance ?: UserRepository(userPreference, storyDatabase, apiService)
             }.also { instance = it }
     }
 }

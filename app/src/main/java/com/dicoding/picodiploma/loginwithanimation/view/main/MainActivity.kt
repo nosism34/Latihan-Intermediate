@@ -13,12 +13,17 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityOptionsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.room.Room
+import com.dicoding.picodiploma.loginwithanimation.R
 import com.dicoding.picodiploma.loginwithanimation.data.Api.ApiConfig
 import com.dicoding.picodiploma.loginwithanimation.data.FileUploadResponse
 import com.dicoding.picodiploma.loginwithanimation.data.GetAllStoryResponse
+import com.dicoding.picodiploma.loginwithanimation.database.StoryDatabase
 import com.dicoding.picodiploma.loginwithanimation.databinding.ActivityMainBinding
 import com.dicoding.picodiploma.loginwithanimation.view.Story.AddStoryActivity
 import com.dicoding.picodiploma.loginwithanimation.view.ViewModelFactory
+import com.dicoding.picodiploma.loginwithanimation.view.maps.MapsActivity
 import com.dicoding.picodiploma.loginwithanimation.view.welcome.WelcomeActivity
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
@@ -37,6 +42,20 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.topAppBar.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.normal_type -> {
+                    val intent = Intent(this, MapsActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+                else -> false
+            }
+        }
+        val db = Room.databaseBuilder(
+            applicationContext,
+            StoryDatabase::class.java, "story_database"
+        ).build()
 
         viewModel.getSession().observe(this) { user ->
             if (!user.isLogin) {
@@ -45,14 +64,14 @@ class MainActivity : AppCompatActivity() {
             }
             else {
                 token = user.token
-                requestLogin()
+                getData()
             }
         }
 
         setupView()
         setupAction()
     }
-    private fun requestLogin() {
+   /* private fun requestLogin() {
         lifecycleScope.launch {
             showLoading(true)
 
@@ -83,6 +102,24 @@ class MainActivity : AppCompatActivity() {
                 Gson().fromJson(errorBody, FileUploadResponse::class.java)
             }
         }
+    }
+
+    */
+    private fun getData() {
+        val adapter = Adapter()
+        binding.tvMain.adapter = adapter.withLoadStateFooter(
+            footer = StateLoadingAdapter{
+                adapter.retry()
+
+            }
+        )
+        val userToken = "Bearer $token"
+        Log.d("token validation",userToken)
+        viewModel.story(userToken).observe(this, {
+            adapter.submitData(lifecycle, it)
+
+        })
+
     }
 
     private fun setupView() {

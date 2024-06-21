@@ -94,7 +94,7 @@ class LoginActivity : AppCompatActivity() {
             val password: String = binding.passwordEditText.text.toString()
             try {
                 val intent = Intent(this@LoginActivity, MainActivity::class.java)
-                val apiService = ApiConfig.getApiService("")
+                val apiService = ApiConfig.getApiService()
                 val successResponse = apiService.login(email, password)
 
                 showToast("Login Success")

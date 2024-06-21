@@ -21,5 +21,11 @@
     <string name="empty_image_warning">Tidak Ada gambar disini \n</string>
     <string name="title">Name</string>
     <string name="secondary_text">description</string>
+    <string name="title_maps">maps\n</string>
+    <string name="retry">retry</string>
+    <string name="normal_type">Normal</string>
+    <string name="satellite_type">Satelit</string>
+    <string name="terrain_type">Terrain</string>
+    <string name="hybrid_type">Hybrid</string>
 
 </resources>
