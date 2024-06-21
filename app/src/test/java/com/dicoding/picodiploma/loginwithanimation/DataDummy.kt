@@ -11,12 +11,12 @@ object DataDummy {
             message = "success",
             listStory = arrayListOf(
                 ListStoryItem(
-                    photoUrl = "ini_adalah_photo_url_dummy",
+                    photoUrl = "url_photo",
                     createdAt = "20/06/2023",
-                    name = "Rohim Kurniawan",
-                    description = "Seubmission untuk android intermediate, tersu berusaha, terus semangat dan anda akan mendapatkan hasilnya!",
+                    name = "Rohman",
+                    description = "Submission untuk android intermediate",
                     lon = 107.908699,
-                    id = "ini_adalah_ID_dummy",
+                    id = "ID_Dummy",
                     lat = -7.227906,
                 )
             )

@@ -58,15 +58,6 @@ class MainViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
-
-    // Test dengan 2 skenario
-    //1. Ketika berhasil memuat data cerita.
-    //    - Memastikan data tidak null.
-    //    - Memastikan jumlah data sesuai dengan yang diharapkan.
-    //    - Memastikan data pertama yang dikembalikan sesuai.
-    //2. Ketika tidak ada data cerita.
-    //    - Memastikan jumlah data yang dikembalikan nol.
-
     @Test
     fun `scenario 1 get story success`() = runTest {
         val expectedResponse = MutableLiveData<PagingData<ListStoryItem>>()
