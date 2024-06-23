@@ -25,14 +25,8 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.BitmapDescriptor
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
-import com.google.android.gms.maps.model.MapStyleOptions
-import com.google.android.gms.maps.model.MarkerOptions
-import com.google.gson.Gson
-import retrofit2.HttpException
+import com.google.android.gms.maps.model.*
+import kotlinx.coroutines.launch
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -40,7 +34,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var binding: ActivityMapsBinding
     private val boundsBuilder = LatLngBounds.Builder()
     private var token = ""
-    private lateinit var usersList: GetAllStoryResponse
 
     private val viewModel by viewModels<MapsViewModel> {
         ViewModelFactory.getInstance(this)
@@ -52,10 +45,19 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         binding = ActivityMapsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        val mapFragment = supportFragmentManager
-            .findFragmentById(R.id.map) as SupportMapFragment
+        val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+        viewModel.stories.observe(this) { stories ->
+            addMarkersFromStories(stories)
+        }
+
+        viewModel.getSession().observe(this) { user ->
+            user?.let {
+                token = it.token
+                viewModel.getStoriesWithLocation(token)
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -100,26 +102,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mMap.uiSettings.isIndoorLevelPickerEnabled = true
         mMap.uiSettings.isCompassEnabled = true
         mMap.uiSettings.isMapToolbarEnabled = true
-        val dicodingSpace = LatLng(-6.8957643, 107.6338462)
-        mMap.addMarker(
-            MarkerOptions()
-                .position(dicodingSpace)
-                .title("Dicoding Space")
-                .snippet("Batik Kumeli No.50")
-        )
-        mMap.setOnPoiClickListener { pointOfInterest ->
-            val poiMarker = mMap.addMarker(
-                MarkerOptions()
-                    .position(pointOfInterest.latLng)
-                    .title(pointOfInterest.name)
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA))
-            )
-            poiMarker?.showInfoWindow()
-        }
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(dicodingSpace, 15f))
+
         getMyLocation()
         setMapStyle()
-        addManyMarker()
     }
 
     private fun vectorToBitmap(@DrawableRes id: Int, @ColorInt color: Int): BitmapDescriptor {
@@ -173,30 +158,17 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    data class DataPlace(
-        val name: String,
-        val lat: Double,
-        val lon: Double,
-        val description: String
-    )
-
-    private fun addManyMarker() {
-        val dataPlace = listOf(
-            DataPlace("Dicoding", -6.8168954, 107.6151046, "Tempat saya belajar"),
-            DataPlace("The Great Asia Africa", -6.8331128, 107.6048483, "Tempat Perbelanjaan"),
-            DataPlace("Rabbit Town", -6.8668408, 107.608081, "Habitat asli dari kelinci"),
-            DataPlace("Alun-Alun Kota Bandung", -6.9218518, 107.6025294, "pusat Kota bandung"),
-            DataPlace("Orchid Forest Cikole", -6.780725, 107.637409, "Tempat bermain anak-Anak"),
-        )
+    private fun addMarkersFromStories(stories: GetAllStoryResponse) {
+        mMap.clear()
 
         var addedMarkers = false
-        dataPlace.forEach { data ->
-            val latLng = LatLng(data.lat, data.lon)
+        stories.listStory.forEach { story ->
+            val latLng = LatLng(story.lat, story.lon)
             mMap.addMarker(
                 MarkerOptions()
                     .position(latLng)
-                    .title(data.name)
-                    .snippet(data.description)
+                    .title(story.name)
+                    .snippet(story.description)
             )
             boundsBuilder.include(latLng)
             addedMarkers = true
@@ -212,10 +184,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     300
                 )
             )
-        } else {
-            // Handle case where no points are added, e.g., set a default location
-            val defaultLocation = LatLng(-6.200000, 106.816666) // Jakarta, for example
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, 10f))
         }
     }
 

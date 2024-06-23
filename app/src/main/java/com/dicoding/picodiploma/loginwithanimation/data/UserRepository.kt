@@ -43,7 +43,9 @@ class UserRepository private constructor(
         ).liveData
     }
 
-
+    suspend fun getStoriesWithLocation(token: String, page: Int = 1, size: Int = 20): GetAllStoryResponse {
+        return storyApi.getStoriesWithLocation("Bearer $token", page, size, 1)
+    }
 
 
     companion object {
