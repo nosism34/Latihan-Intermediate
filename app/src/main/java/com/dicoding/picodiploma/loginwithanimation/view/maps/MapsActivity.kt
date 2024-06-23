@@ -17,10 +17,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.DrawableCompat
-import androidx.lifecycle.lifecycleScope
 import com.dicoding.picodiploma.loginwithanimation.R
-import com.dicoding.picodiploma.loginwithanimation.data.Api.ApiConfig
-import com.dicoding.picodiploma.loginwithanimation.data.FileUploadResponse
 import com.dicoding.picodiploma.loginwithanimation.data.GetAllStoryResponse
 import com.dicoding.picodiploma.loginwithanimation.databinding.ActivityMapsBinding
 import com.dicoding.picodiploma.loginwithanimation.view.ViewModelFactory
@@ -35,7 +32,6 @@ import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.gson.Gson
-import kotlinx.coroutines.launch
 import retrofit2.HttpException
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -45,7 +41,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private val boundsBuilder = LatLngBounds.Builder()
     private var token = ""
     private lateinit var usersList: GetAllStoryResponse
-
 
     private val viewModel by viewModels<MapsViewModel> {
         ViewModelFactory.getInstance(this)
@@ -57,7 +52,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         binding = ActivityMapsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
@@ -65,9 +59,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_main, menu)
+        menuInflater.inflate(R.menu.menu_maps, menu)
         return true
     }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.normal_type -> {
@@ -86,9 +81,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 mMap.mapType = GoogleMap.MAP_TYPE_HYBRID
                 true
             }
-            else -> {
-                super.onOptionsItemSelected(item)
-            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
@@ -127,9 +120,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         getMyLocation()
         setMapStyle()
         addManyMarker()
-
     }
-    fun vectorToBitmap(@DrawableRes id: Int, @ColorInt color: Int): BitmapDescriptor {
+
+    private fun vectorToBitmap(@DrawableRes id: Int, @ColorInt color: Int): BitmapDescriptor {
         val vectorDrawable = ResourcesCompat.getDrawable(resources, id, null)
         if (vectorDrawable == null) {
             Log.e("BitmapHelper", "Resource not found")
@@ -146,6 +139,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         vectorDrawable.draw(canvas)
         return BitmapDescriptorFactory.fromBitmap(bitmap)
     }
+
     private val requestPermissionLauncher =
         registerForActivityResult(
             ActivityResultContracts.RequestPermission()
@@ -154,6 +148,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 getMyLocation()
             }
         }
+
     private fun getMyLocation() {
         if (ContextCompat.checkSelfPermission(
                 this.applicationContext,
@@ -165,6 +160,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             requestPermissionLauncher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
         }
     }
+
     private fun setMapStyle() {
         try {
             val success =
@@ -176,21 +172,24 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             Log.e(TAG, "Can't find style. Error: ", exception)
         }
     }
+
     data class DataPlace(
         val name: String,
         val lat: Double,
         val lon: Double,
-        val description:String
+        val description: String
     )
 
     private fun addManyMarker() {
         val dataPlace = listOf(
-            DataPlace("Dicoding", -6.8168954,107.6151046, "Tempat saya belajar"),
-            DataPlace("The Great Asia Africa", -6.8331128,107.6048483,"Tempat Perbelanjaan "),
-            DataPlace("Rabbit Town", -6.8668408,107.608081,"Habitat asli dari kelinci"),
-            DataPlace("Alun-Alun Kota Bandung", -6.9218518,107.6025294,"pusat Kota bandung"),
-            DataPlace("Orchid Forest Cikole", -6.780725, 107.637409,"Tempat bermain anak-Anak"),
+            DataPlace("Dicoding", -6.8168954, 107.6151046, "Tempat saya belajar"),
+            DataPlace("The Great Asia Africa", -6.8331128, 107.6048483, "Tempat Perbelanjaan"),
+            DataPlace("Rabbit Town", -6.8668408, 107.608081, "Habitat asli dari kelinci"),
+            DataPlace("Alun-Alun Kota Bandung", -6.9218518, 107.6025294, "pusat Kota bandung"),
+            DataPlace("Orchid Forest Cikole", -6.780725, 107.637409, "Tempat bermain anak-Anak"),
         )
+
+        var addedMarkers = false
         dataPlace.forEach { data ->
             val latLng = LatLng(data.lat, data.lon)
             mMap.addMarker(
@@ -199,20 +198,27 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     .title(data.name)
                     .snippet(data.description)
             )
+            boundsBuilder.include(latLng)
+            addedMarkers = true
         }
-        val bounds: LatLngBounds = boundsBuilder.build()
-        mMap.animateCamera(
-            CameraUpdateFactory.newLatLngBounds(
-                bounds,
-                resources.displayMetrics.widthPixels,
-                resources.displayMetrics.heightPixels,
-                300
+
+        if (addedMarkers) {
+            val bounds: LatLngBounds = boundsBuilder.build()
+            mMap.animateCamera(
+                CameraUpdateFactory.newLatLngBounds(
+                    bounds,
+                    resources.displayMetrics.widthPixels,
+                    resources.displayMetrics.heightPixels,
+                    300
+                )
             )
-        )
+        } else {
+            // Handle case where no points are added, e.g., set a default location
+            val defaultLocation = LatLng(-6.200000, 106.816666) // Jakarta, for example
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, 10f))
+        }
     }
 
-
-    //use live template logt to create this
     companion object {
         private const val TAG = "MapsActivity"
     }

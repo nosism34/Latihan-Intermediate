@@ -5,6 +5,8 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowManager
@@ -13,13 +15,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityOptionsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import androidx.room.Room
 import com.dicoding.picodiploma.loginwithanimation.R
 import com.dicoding.picodiploma.loginwithanimation.data.Api.ApiConfig
 import com.dicoding.picodiploma.loginwithanimation.data.FileUploadResponse
 import com.dicoding.picodiploma.loginwithanimation.data.GetAllStoryResponse
-import com.dicoding.picodiploma.loginwithanimation.database.StoryDatabase
 import com.dicoding.picodiploma.loginwithanimation.databinding.ActivityMainBinding
 import com.dicoding.picodiploma.loginwithanimation.view.Story.AddStoryActivity
 import com.dicoding.picodiploma.loginwithanimation.view.ViewModelFactory
@@ -42,27 +41,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.topAppBar.setOnMenuItemClickListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.normal_type -> {
-                    val intent = Intent(this, MapsActivity::class.java)
-                    startActivity(intent)
-                    true
-                }
-                else -> false
-            }
-        }
-        val db = Room.databaseBuilder(
-            applicationContext,
-            StoryDatabase::class.java, "story_database"
-        ).build()
 
         viewModel.getSession().observe(this) { user ->
             if (!user.isLogin) {
                 startActivity(Intent(this, WelcomeActivity::class.java))
                 finish()
-            }
-            else {
+            } else {
                 token = user.token
                 getData()
             }
@@ -70,41 +54,8 @@ class MainActivity : AppCompatActivity() {
 
         setupView()
         setupAction()
+        setupToolbar()
     }
-   /* private fun requestLogin() {
-        lifecycleScope.launch {
-            showLoading(true)
-
-            try {
-
-                val apiService = ApiConfig.getApiService(token)
-                Log.d("token validation",token)
-                val successResponse = apiService.getStories(1,20)
-                try {
-                    usersList = successResponse
-                    val storyList = usersList.listStory
-
-                    binding.tvMain.apply {
-                        rvadapter = Adapter(storyList)
-                        layoutManager = LinearLayoutManager(this@MainActivity)
-                        adapter = rvadapter
-                        showLoading(false)
-
-                    }
-
-
-                } catch (e: Exception) {
-                    Log.e("JSON", "Error parsing JSON: ${e.message}")
-                }
-
-            } catch (e: HttpException) {
-                val errorBody = e.response()?.errorBody()?.string()
-                Gson().fromJson(errorBody, FileUploadResponse::class.java)
-            }
-        }
-    }
-
-    */
     private fun getData() {
         val adapter = Adapter()
         binding.tvMain.adapter = adapter.withLoadStateFooter(
@@ -122,6 +73,35 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    /* private fun requestLogin() {
+          lifecycleScope.launch {
+              showLoading(true)
+
+              try {
+                  val apiService = ApiConfig.getApiService(token)
+                  Log.d("token validation", token)
+                  val successResponse = apiService.getStories(1, 20)
+                  try {
+                      usersList = successResponse
+                      val storyList = usersList.listStory
+
+                      binding.tvMain.apply {
+                          rvadapter = Adapter(storyList)
+                          layoutManager = LinearLayoutManager(this@MainActivity)
+                          adapter = rvadapter
+                          showLoading(false)
+                      }
+                  } catch (e: Exception) {
+                      Log.e("JSON", "Error parsing JSON: ${e.message}")
+                  }
+              } catch (e: HttpException) {
+                  val errorBody = e.response()?.errorBody()?.string()
+                  Gson().fromJson(errorBody, FileUploadResponse::class.java)
+              }
+          }
+      }
+        */
+
     private fun setupView() {
         @Suppress("DEPRECATION")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -134,14 +114,41 @@ class MainActivity : AppCompatActivity() {
         }
         supportActionBar?.hide()
     }
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return true
+    }
+    private fun setupToolbar() {
+        setSupportActionBar(binding.topAppBar)
 
-    private fun setupAction() {
-        binding.logoutButton.setOnClickListener {
-            viewModel.logout()
+        binding.topAppBar.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.maps -> {
+                    val intent = Intent(this, MapsActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+                R.id.logout -> {
+                    viewModel.logout()
+                    startActivity(Intent(this, WelcomeActivity::class.java))
+                    finish()
+                    true
+                }
+                else -> false
+            }
         }
 
-        binding.btnUpload.setOnClickListener{
-            val intent = Intent(this,AddStoryActivity::class.java)
+        binding.maps.setOnClickListener {
+            val intent = Intent(this, MapsActivity::class.java)
+            startActivity(intent)
+        }
+    }
+
+
+    private fun setupAction() {
+
+        binding.add.setOnClickListener {
+            val intent = Intent(this, AddStoryActivity::class.java)
             intent.putExtra("token", token)
             startActivity(intent,
                 ActivityOptionsCompat.makeSceneTransitionAnimation(this@MainActivity as Activity).toBundle())
@@ -151,5 +158,4 @@ class MainActivity : AppCompatActivity() {
     private fun showLoading(isLoading: Boolean) {
         binding.progressIndicator.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
-
 }

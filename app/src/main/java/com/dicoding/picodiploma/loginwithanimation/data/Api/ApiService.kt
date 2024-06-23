@@ -36,13 +36,14 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Query("page") page: Int = 1,
         @Query("size") size: Int = 20,
-        @Query("location") location: Int = 1,
     ):GetAllStoryResponse
 
     @GET("stories")
     suspend fun getStoriesWithLocation(
         @Header("Authorization") token: String,
-        @Query("location") location: Int = 1,
+        @Query("page") page: Int,
+        @Query("size") size: Int,
+        @Query("location") location : Int = 1,
     ):GetAllStoryResponse
     @Multipart
     @POST("stories")

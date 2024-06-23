@@ -20,7 +20,7 @@
         android:theme="@style/Theme.LoginWithAnimation">
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyAPGsIIUp2bYJJHMN4VWOrSfKjCMwtzzmw" />
+            android:value="AIzaSyD8KXO56mxEJyv39mjUWnXWoOT6aEE7fYs" />
 
         <activity
             android:name=".view.maps.MapsActivity"

@@ -14,10 +14,9 @@ import com.dicoding.picodiploma.loginwithanimation.data.ListStoryItem
 import com.dicoding.picodiploma.loginwithanimation.databinding.ItemStoryBinding
 import com.dicoding.picodiploma.loginwithanimation.view.Story.DetailStoryActivity
 
-class Adapter: PagingDataAdapter<ListStoryItem, Adapter.MyViewHolder>(
-    DIFF_CALLBACK){
-    class MyViewHolder(val binding: ItemStoryBinding):
-        RecyclerView.ViewHolder(binding.root) {
+class Adapter : PagingDataAdapter<ListStoryItem, Adapter.MyViewHolder>(DIFF_CALLBACK) {
+
+    class MyViewHolder(val binding: ItemStoryBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(currentItem: ListStoryItem) {
             binding.progressIndicator.visibility = View.VISIBLE
             binding.apply {
@@ -47,6 +46,11 @@ class Adapter: PagingDataAdapter<ListStoryItem, Adapter.MyViewHolder>(
         }
     }
 
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
+        val binding = ItemStoryBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return MyViewHolder(binding)
+    }
+
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         val data = getItem(position)
         if (data != null) {
@@ -54,63 +58,13 @@ class Adapter: PagingDataAdapter<ListStoryItem, Adapter.MyViewHolder>(
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
-        val binding = ItemStoryBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return MyViewHolder(binding)
-    }
-
-   /* override fun getItemCount(): Int {
-        return storiesList.size
-    }
-
-    */
-
-   /* override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        holder.binding.progressIndicator.visibility = View.VISIBLE
-        val currentItem = storiesList[position]
-        holder.binding.apply {
-            tvName.text = currentItem.name
-            tvDesc.text = currentItem.description
-            Glide.with(card)
-                .load(currentItem.photoUrl)
-                .centerCrop()
-                .into(ivPhoto)
-
-
-            card.setOnClickListener {
-                val intent = Intent(card.context, DetailStoryActivity::class.java)
-                val optionsCompat: ActivityOptionsCompat =
-                    ActivityOptionsCompat.makeSceneTransitionAnimation(
-                        card.context as Activity,
-                        androidx.core.util.Pair(ivPhoto, "image"),
-                        androidx.core.util.Pair(tvName, "title"),
-                        androidx.core.util.Pair(tvDesc, "desc"),
-                    )
-                intent.putExtra("name", currentItem.name!!)
-                intent.putExtra("imageId", currentItem.photoUrl!!)
-                intent.putExtra("desc", currentItem.description!!)
-                card.context.startActivity(intent,optionsCompat.toBundle())
-
-            }
-
-        }
-
-    }
-
-    */
     companion object {
         val DIFF_CALLBACK = object : DiffUtil.ItemCallback<ListStoryItem>() {
-            override fun areItemsTheSame(
-                oldItem: ListStoryItem,
-                newItem: ListStoryItem
-            ): Boolean {
+            override fun areItemsTheSame(oldItem: ListStoryItem, newItem: ListStoryItem): Boolean {
                 return oldItem == newItem
             }
 
-            override fun areContentsTheSame(
-                oldItem: ListStoryItem,
-                newItem: ListStoryItem
-            ): Boolean {
+            override fun areContentsTheSame(oldItem: ListStoryItem, newItem: ListStoryItem): Boolean {
                 return oldItem.id == newItem.id
             }
         }

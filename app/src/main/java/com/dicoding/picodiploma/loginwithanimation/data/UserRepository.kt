@@ -29,12 +29,13 @@ class UserRepository private constructor(
     suspend fun logout() {
         userPreference.logout()
     }
-    fun getStory(): LiveData<PagingData<ListStoryItem>> {
-        @OptIn(ExperimentalPagingApi::class)
+    @OptIn(ExperimentalPagingApi::class)
+    fun getStory(token:String): LiveData<PagingData<ListStoryItem>> {
         return Pager(
             config = PagingConfig(
                 pageSize = 5
             ),
+            remoteMediator = StoryRemoteMediator(storyDatabase, storyApi, token),
             pagingSourceFactory = {
 //                QuotePagingSource(apiService)
                 storyDatabase.storyDao().getAllQuote()
