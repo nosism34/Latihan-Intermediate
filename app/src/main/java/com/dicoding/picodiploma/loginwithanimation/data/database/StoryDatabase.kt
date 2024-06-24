@@ -6,10 +6,9 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.dicoding.picodiploma.loginwithanimation.data.ListStoryItem
 
-
 @Database(
     entities = [ListStoryItem::class, RemoteKeys::class],
-    version = 2,
+    version = 4, // Incremented version number
     exportSchema = false
 )
 abstract class StoryDatabase : RoomDatabase() {
@@ -28,7 +27,7 @@ abstract class StoryDatabase : RoomDatabase() {
                     context.applicationContext,
                     StoryDatabase::class.java, "story_database"
                 )
-                    .fallbackToDestructiveMigration()
+                    .fallbackToDestructiveMigration() // Handles schema changes destructively
                     .build()
                     .also { INSTANCE = it }
             }
